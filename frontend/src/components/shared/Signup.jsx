@@ -49,9 +49,10 @@ const Signup = ({ onLoginClick }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
     if (formData.role === 'student') {
       if (!validateEnrollment(formData.enrollment)) {
-        setError('Enrollment number must be 6-10 alphanumeric characters.');
+        setError('Enrollment number must be exactly 12 digits.');
         return;
       }
     } else {
@@ -60,28 +61,52 @@ const Signup = ({ onLoginClick }) => {
         return;
       }
     }
+    
     if (!validatePassword(formData.password)) {
       setError('Password must contain at least one letter, one number, one symbol, and be at least 6 characters.');
       return;
     }
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
+    
     setIsLoading(true);
+    
     try {
-      await auth.signup({
-        ...formData,
-        identifier: formData.role === 'student' ? formData.enrollment : formData.email
-      });
-      // Reset form
-      setFormData({
-        enrollment: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        role: 'student'
-      });
+      const registrationData = {
+        email: formData.role === 'student' ? formData.enrollment : formData.email,
+        password: formData.password,
+        full_name: formData.role === 'student' ? `Student ${formData.enrollment}` : 'Teacher',
+        department: formData.role === 'student' ? formData.branch || 'Computer Engineering' : 'Computer Engineering',
+        semester: formData.role === 'student' ? parseInt(formData.semester) || 1 : undefined,
+        enrollment_number: formData.role === 'student' ? formData.enrollment : undefined
+      };
+
+      let result;
+      if (formData.role === 'student') {
+        result = await auth.registerStudent(registrationData);
+      } else {
+        result = await auth.registerTeacher(registrationData);
+      }
+      
+      if (result.success) {
+        // Reset form
+        setFormData({
+          enrollment: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          role: 'student',
+          interests: '',
+          skills: '',
+          goals: ''
+        });
+        alert('Registration successful! Please login with your credentials.');
+      } else {
+        setError(result.error || 'Registration failed');
+      }
     } catch (error) {
       setError(error.message || 'Failed to sign up');
     } finally {

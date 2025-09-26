@@ -3,7 +3,7 @@ import { Users, CheckCircle, XCircle, Clock, Calendar, Download, Filter, FileTex
 import attendanceData from '../../data/attendance.json';
 import studentsData from '../../data/students.json';
 import { useTheme } from '../../contexts/ThemeContext.jsx';
-import QRAttendanceSession from './QRAttendanceSession';
+import DynamicQRAttendanceSession from './DynamicQRAttendanceSession';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -481,7 +481,7 @@ const FacultyAttendance = () => {
       {showQRSession && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto`}>
-            <QRAttendanceSession onStopSession={handleStopQRSession} />
+            <DynamicQRAttendanceSession onStopSession={handleStopQRSession} />
           </div>
         </div>
       )}

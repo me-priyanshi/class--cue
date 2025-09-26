@@ -144,32 +144,21 @@ const Login = ({ onSignupClick }) => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      const userData = formData.role === 'student' 
-        ? {
-            id: formData.enrollment || 'STU001',
-            name: 'Raja Ram',
-            enrollment: formData.enrollment,
-            role: 'student',
-            avatar: `https://ui-avatars.com/api/?name=Raja+Ram&background=3b82f6&color=fff`
-          }
-        : {
-            id: 'FAC001',
-            name: 'Guru Drona',
-            email: formData.email,
-            role: 'faculty',
-            avatar: `https://ui-avatars.com/api/?name=Guru+Drona&background=3b82f6&color=fff`
-          };
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      login(userData);
+      // Use enrollment number for students, email for faculty
+      const identifier = formData.role === 'student' ? formData.enrollment : formData.email;
       
-      // Navigate to home after successful login
-      if(formData.email === 'facultyemail@gmail.com' || formData.enrollment === '123456789012') {
+      const result = await login(identifier, formData.password, formData.role);
+      
+      if (result.success) {
+        // Navigate to home after successful login
         navigate('/');
+      } else {
+        // Show error message
+        alert(result.error || 'Login failed. Please check your credentials.');
       }
     } catch (error) {
       console.error('Login failed:', error);
+      alert('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -261,9 +250,12 @@ const Login = ({ onSignupClick }) => {
                   onInvalid={e => e.target.setCustomValidity('Enrollment number must be exactly 12 digits.')}
                   onInput={e => e.target.setCustomValidity('')}
                   className="input-field"
-                  placeholder="Enter your enrollment number"
+                  placeholder="Enter your 12-digit enrollment number"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Example: 240173107002
+                </p>
               </div>
             ) : (
               <div>
@@ -277,7 +269,7 @@ const Login = ({ onSignupClick }) => {
                   value={formData.email}
                   onChange={handleInputChange}
                   className="input-field"
-                  placeholder="Enter your email"
+                  placeholder="Enter your email address"
                   required
                 />
               </div>
@@ -334,8 +326,12 @@ const Login = ({ onSignupClick }) => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 mb-2">
-              Demo credentials: Use any password
+              Demo credentials:
             </p>
+            <div className="text-xs text-gray-500 mb-2">
+              <p><strong>Students:</strong> Enrollment: 240173107002, Password: password123</p>
+              <p><strong>Faculty:</strong> Email: teacher1@example.com, Password: password123</p>
+            </div>
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
               <Link to="/signup" className="text-primary-600 font-medium underline">

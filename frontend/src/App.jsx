@@ -12,14 +12,13 @@ import QRCodeAttendance from './components/shared/QRCodeAttendance.jsx';
 import StudentDashboard from './components/student/StudentDashboard.jsx';
 // import StudentTimetable from './components/student/StudentTimetable.jsx';
 import StudentTasks from './components/student/StudentTasks.jsx';
+import StudentSettings from './components/student/StudentSettings.jsx';
 
 // Faculty Components
 import FacultyDashboard from './components/faculty/FacultyDashboard.jsx';
 import FacultyStudents from './components/faculty/FacultyStudents.jsx';
 import FacultyAttendance from './components/faculty/FacultyAttendance.jsx';
-
-// Shared Components
-import Settings from './components/shared/Settings.jsx';
+import FacultySettings from './components/faculty/FacultySettings.jsx';
 
 const AppContent = () => {
   const { user, loading } = useAuth();
@@ -56,7 +55,7 @@ const AppContent = () => {
                 <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
                 <div className="lg:ml-64 transition-all duration-300">
                   <main className="p-4 lg:p-8">
-                    {user.role === 'student' ? (
+                    {(user.user_role || user.role) === 'student' ? (
                       <>
                         {activeTab === 'dashboard' && <StudentDashboard />}
                         {activeTab === 'attendance' && (
@@ -85,14 +84,14 @@ const AppContent = () => {
                         )}
                         {/* {activeTab === 'timetable' && <StudentTimetable />} */}
                         {activeTab === 'tasks' && <StudentTasks />}
-                        {activeTab === 'settings' && <Settings />}
+                        {activeTab === 'settings' && <StudentSettings />}
                       </>
                     ) : (
                       <>
                         {activeTab === 'dashboard' && <FacultyDashboard />}
                         {activeTab === 'attendance' && <FacultyAttendance />}
                         {activeTab === 'students' && <FacultyStudents />}
-                        {activeTab === 'settings' && <Settings />}
+                        {activeTab === 'settings' && <FacultySettings />}
                       </>
                     )}
                   </main>

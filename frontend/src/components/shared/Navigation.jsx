@@ -16,6 +16,7 @@ import ClassCueLogo from '../../images/ClassCueLogo.png';
 
 const UserAvatar = ({ user, theme }) => {
   const getInitials = (name) => {
+    if (!name) return 'U';
     return name
       .split(' ')
       .map(word => word[0])
@@ -23,17 +24,20 @@ const UserAvatar = ({ user, theme }) => {
       .toUpperCase();
   };
 
+  const displayName = user?.full_name || user?.name || 'User';
+  const userRole = user?.user_role || user?.role || 'user';
+
   return (
     <div className="flex items-center">
       <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-medium">
-        {getInitials(user?.name || 'User')}
+        {getInitials(displayName)}
       </div>
       <div className="ml-3">
         <p className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-          {user?.name}
+          {displayName}
         </p>
         <p className={`text-xs capitalize ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-          {user?.role}
+          {userRole}
         </p>
       </div>
     </div>
@@ -60,7 +64,7 @@ const Navigation = ({ activeTab, setActiveTab }) => {
   { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
-  const navItems = user?.role === 'student' ? studentNavItems : facultyNavItems;
+  const navItems = (user?.user_role || user?.role) === 'student' ? studentNavItems : facultyNavItems;
 
   const handleLogout = () => {
     logout();
@@ -145,7 +149,7 @@ const Navigation = ({ activeTab, setActiveTab }) => {
           
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-medium text-sm">
-              {user?.name ? user.name.split(' ').map(word => word[0]).join('').toUpperCase() : 'U'}
+              {user?.full_name ? user.full_name.split(' ').map(word => word[0]).join('').toUpperCase() : 'U'}
             </div>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

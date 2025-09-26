@@ -221,7 +221,7 @@ const FacultyDashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              {getGreeting()}, {user?.name.split(' ')[0]}!
+              {getGreeting()}, {user?.full_name ? user.full_name.split(' ')[0] : 'Faculty'}!
             </h1>
             <p className={`mt-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
               {currentTime.toLocaleDateString('en-US', { 

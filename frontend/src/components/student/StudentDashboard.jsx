@@ -117,7 +117,7 @@ const StudentDashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {getGreeting()}, {user?.name.split(' ')[0]}!
+              {getGreeting()}, {user?.full_name ? user.full_name.split(' ')[0] : 'Student'}!
             </h1>
             <p className="text-gray-600 mt-1">
               {currentTime.toLocaleDateString('en-US', { 
