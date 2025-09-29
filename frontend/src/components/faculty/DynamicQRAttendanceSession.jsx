@@ -341,19 +341,12 @@ const DynamicQRAttendanceSession = ({ onStopSession }) => {
       <div className="mt-6 flex justify-center space-x-4">
         <button
           onClick={stopSession}
-          className="btn-secondary flex items-center"
+          className="btn-primary flex items-center"
         >
-          <Square className="w-5 h-5 mr-2" />
+          
           End Session
         </button>
         
-        <button
-          onClick={() => window.location.reload()}
-          className="btn-primary flex items-center"
-        >
-          <RotateCcw className="w-5 h-5 mr-2" />
-          Refresh
-        </button>
       </div>
 
       {/* Instructions */}
