@@ -141,27 +141,100 @@ const FacultyAttendance = () => {
       head: [['Student ID', 'Name', 'Email', 'Status', 'Time']],
       body: tableData,
       startY: 90,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [59, 130, 246] },
-      alternateRowStyles: { fillColor: [248, 250, 252] },
+      styles: {
+        fontSize: 8,
+        lineWidth: 0.2, // Thin border
+        lineColor: [0, 0, 0], // Black border
+        cellPadding: 2
+      },
+      headStyles: {
+        fillColor: [59, 130, 246],
+        textColor: [255, 255, 255],
+        lineWidth: 0.2
+      },
       didParseCell: function(data) {
         // Color code Status column
-        if (data.column.index === 3) { // Status column
-          if (data.cell.raw === 'Present') {
-            data.cell.styles.fillColor = [16, 185, 129]; // Green
-            data.cell.styles.textColor = [255, 255, 255]; // White text
-            data.cell.styles.fontStyle = 'bold';
-          } else if (data.cell.raw === 'Absent') {
-            data.cell.styles.fillColor = [239, 68, 68]; // Red
-            data.cell.styles.textColor = [255, 255, 255]; // White text
-            data.cell.styles.fontStyle = 'bold';
-          }
+        const statusValue = data.row.raw[3]; // Status column value
+        if (statusValue === 'Present') {
+          data.cell.styles.fillColor = [16, 185, 129]; // Green
+          data.cell.styles.textColor = [255, 255, 255]; // White text
+          data.cell.styles.fontStyle = 'bold';
+        } else if (statusValue === 'Absent') {
+          data.cell.styles.fillColor = [239, 68, 68]; // Red
+          data.cell.styles.textColor = [255, 255, 255]; // White text
+          data.cell.styles.fontStyle = 'bold';
         }
       }
     });
     
     // Save the PDF
     doc.save(`${currentClass.subject}_attendance_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const exportClassAttendanceExcel = async () => {
+    if (!currentClass) return;
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(`${currentClass.subject}`);
+
+    // Header
+    const headerRow = worksheet.addRow(['Student ID', 'Name', 'Email', 'Status', 'Time']);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.alignment = { horizontal: 'center' };
+    headerRow.eachCell(cell => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3B82F6' } };
+      cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+    });
+
+    // Data rows with coloring by presence
+    currentClass.students.forEach(student => {
+      const info = getStudentInfo(student.id);
+      const statusText = student.present ? 'Present' : 'Absent';
+      const row = worksheet.addRow([
+        student.studentId || student.id,
+        student.name,
+        info?.email || '',
+        statusText,
+        student.time || 'N/A'
+      ]);
+
+      const rowColor = student.present ? 'FFECFDF5' : 'FFFEE2E2'; // green tint or red tint
+      row.eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowColor } };
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+      });
+
+      // Stronger color on Status cell
+      const statusCell = row.getCell(4);
+      statusCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: student.present ? 'FF10B981' : 'FFEF4444' }
+      };
+      statusCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      statusCell.alignment = { horizontal: 'center' };
+    });
+
+    // Auto width
+    worksheet.columns.forEach(column => {
+      let maxLength = 10;
+      column.eachCell({ includeEmpty: true }, cell => {
+        const cellValue = cell.value ? cell.value.toString() : '';
+        maxLength = Math.max(maxLength, cellValue.length + 2);
+      });
+      column.width = Math.min(maxLength, 40);
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentClass.subject}_attendance_${new Date().toISOString().split('T')[0]}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const filteredStudents = currentClass?.students.filter(student => {
@@ -191,7 +264,7 @@ const FacultyAttendance = () => {
               <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>Monitor and manage student attendance in real-time</p>
             </div>
           </div>
-          <div className="flex space-x-2">
+          {/* <div className="flex space-x-2">
             <button
               onClick={exportClassAttendanceCSV}
               className="btn-primary flex items-center"
@@ -208,7 +281,7 @@ const FacultyAttendance = () => {
               <FileText className="w-4 h-4 mr-2" />
               Export PDF
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -239,15 +312,34 @@ const FacultyAttendance = () => {
                 ? 'bg-green-900 border-green-700 hover:bg-green-800' 
                 : 'bg-green-50 border-green-200 hover:bg-green-100'
             }`}
-            onClick={exportClassAttendanceCSV}
+            onClick={exportClassAttendanceExcel}
           >
             <div className="flex items-center">
               <Download className={`w-6 h-6 mr-3 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`} />
               <div className="text-left">
-                <h4 className={`font-medium ${theme === 'dark' ? 'text-green-300' : 'text-green-900'}`}>Export Report</h4>
-                <p className={`text-sm ${theme === 'dark' ? 'text-green-400' : 'text-green-700'}`}>Download attendance report</p>
+                <h4 className={`font-medium ${theme === 'dark' ? 'text-green-300' : 'text-green-900'}`}>Export Excel (.xlsx)</h4>
+                <p className={`text-sm ${theme === 'dark' ? 'text-green-400' : 'text-green-700'}`}>Download styled Excel file</p>
               </div>
             </div>
+          </button>
+
+          <button
+              onClick={exportClassAttendancePDF}
+              // className="btn-secondary flex items-center"
+              className={`p-4 border rounded-lg transition-colors duration-200 ${
+              theme === 'dark' 
+                ? 'bg-teritary border-secondary-700 hover:bg-gray-100' 
+                : 'bg-secondary-50 border-secondary-200 hover:bg-primary-100'
+            }`}
+          >
+            <div className="flex items-center">
+              <FileText className="w-6 h-6 mr-3" />
+              <div className="text-left">
+                <h4 className='font-medium'>Export PDF (.pdf)</h4>
+                <p className='text-sm'>Download styled PDF file</p>
+              </div>
+            </div>
+          
           </button>
         </div>
       </div>

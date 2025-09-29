@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { loadStudentsData, loadAttendanceData } from '../../utils/dataLoader.js';
+import timetableData from '../../data/timetable.json';
 // import studentsData from '../../data/students.json';
 // import attendanceData from '../../data/attendance.json';
 import ExcelJS from 'exceljs';
@@ -30,6 +31,7 @@ const FacultyDashboard = () => {
   });
   const [studentsData, setStudentsData] = useState([]);
   const [attendanceData, setAttendanceData] = useState({ today: { classes: [] }, weekly: { summary: {} } });
+  const [todayClasses, setTodayClasses] = useState([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -38,10 +40,37 @@ const FacultyDashboard = () => {
 
     // Load data
     const loadData = async () => {
-      const students = await loadStudentsData();
-      const attendance = await loadAttendanceData();
-      setStudentsData(students);
-      setAttendanceData(attendance);
+      try {
+        const students = await loadStudentsData();
+        const attendance = await loadAttendanceData();
+        
+        if (!attendance || !attendance.today || !attendance.today.classes) {
+          console.error('Invalid attendance data structure');
+          return;
+        }
+
+        // Get current day and filter classes for today
+        const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const todaySchedule = timetableData[dayOfWeek] || [];
+        
+        // Combine timetable with attendance data
+        const combinedClasses = attendance.today.classes.map(cls => {
+          const scheduleClass = todaySchedule.find(sc => 
+            sc.subject === cls.subject && sc.time.includes(cls.time.split(' - ')[0])
+          );
+          return {
+            ...cls,
+            type: scheduleClass?.type || 'Lecture',
+            sub_code: scheduleClass?.sub_code
+          };
+        });
+
+        setStudentsData(students);
+        setAttendanceData(attendance);
+        setTodayClasses(combinedClasses);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
     };
     
     loadData();
@@ -352,11 +381,21 @@ const FacultyDashboard = () => {
         </div>
 
         <div className="space-y-4">
-          {todayAttendance.map((cls) => (
+          {todayClasses.length > 0 ? (
+            todayClasses.map((cls) => (
             <div key={cls.id} className={`p-6 rounded-xl border ${theme === 'dark' ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'}`}>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h4 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{cls.subject}</h4>
+                  <div className="flex items-center gap-2">
+                    <h4 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{cls.subject}</h4>
+                    <span className={`text-sm px-2 py-0.5 rounded ${
+                      theme === 'dark' 
+                        ? 'bg-purple-900/50 text-purple-200'
+                        : 'bg-purple-100 text-purple-800'
+                    }`}>
+                      {cls.type}
+                    </span>
+                  </div>
                   <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{cls.teacher}</p>
                   <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{cls.time} • {cls.room}</p>
                 </div>
@@ -395,7 +434,13 @@ const FacultyDashboard = () => {
                 </div>
               </div>
             </div>
-          ))}
+          ))) : (
+            <div className={`p-6 text-center rounded-xl border ${theme === 'dark' ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'}`}>
+              <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                No classes scheduled for today
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

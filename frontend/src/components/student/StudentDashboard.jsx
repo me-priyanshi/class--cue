@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Calendar, CheckCircle, BookOpen } from 'lucide-react';
+import { Clock, Calendar,CheckCircle,  BookOpen } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import attendanceData from '../../data/attendance.json';
 import timetableData from '../../data/timetable.json';
@@ -16,6 +16,15 @@ const StudentDashboard = () => {
   const [nextClassDay, setNextClassDay] = useState("Today");
   const [freePeriods, setFreePeriods] = useState([]);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
+
+
+  const convertTo24Hour = (timeStr) => {
+    const [time, meridiem] = timeStr.trim().split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+    if (meridiem === 'PM' && hours !== 12) hours += 12;
+    if (meridiem === 'AM' && hours === 12) hours = 0;
+    return { hours, minutes };
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -37,15 +46,19 @@ const StudentDashboard = () => {
 
     schedule.forEach((cls, index) => {
       const [startTime, endTime] = cls.time.split(' - ');
-      const [startHour, startMin] = startTime.split(':').map(Number);
-      const [endHour, endMin] = endTime.split(':').map(Number);
 
-      const startMinutes = startHour * 60 + startMin;
-      const endMinutes = endHour * 60 + endMin;
+      const start = convertTo24Hour(startTime);
+      const end = convertTo24Hour(endTime);
 
+      const startMinutes = start.hours * 60 + start.minutes;
+      const endMinutes = end.hours * 60 + end.minutes;
+
+      // Check if this is the current class
       if (currentTimeMinutes >= startMinutes && currentTimeMinutes <= endMinutes) {
         current = cls;
-      } else if ((currentHour < startHour) || (currentHour < startHour) && !next) {
+      } 
+      // Check if this is the next class (only if we haven't found one yet)
+      else if (currentTimeMinutes < startMinutes && !next) {
         next = cls;
       }
 
@@ -170,8 +183,8 @@ const StudentDashboard = () => {
           </div>
           {currentClass ? (
             <div>
-              <h4 className="font-medium text-gray-900">{currentClass.subject}</h4>
-              <p className="text-sm text-gray-600 mt-1">{currentClass.teacher}</p>
+              <h4 className="font-medium text-gray-900">{currentClass.subject} ( {currentClass.type} )</h4>
+              <p className="text-sm text-gray-600 mt-1">{currentClass.faculty}</p>
               <p className="text-sm text-gray-500 mt-1">{currentClass.time}</p>
               <p className="text-sm text-gray-500">{currentClass.room}</p>
               <div className="mt-3 flex items-center text-sm text-green-600">
@@ -196,8 +209,8 @@ const StudentDashboard = () => {
           </div>
           {nextClass ? (
             <div>
-              <h4 className="font-medium text-gray-900">{nextClass.subject}</h4>
-              <p className="text-sm text-gray-600 mt-1">{nextClass.teacher}</p>
+              <h4 className="font-medium text-gray-900">{nextClass.subject}  ( {nextClass.type} ) </h4>
+              <p className="text-sm text-gray-600 mt-1">{nextClass.faculty}</p>
               <p className="text-sm text-gray-500 mt-1">{nextClass.time}</p>
               <p className="text-sm text-gray-500">{nextClass.room}</p>
               {nextClassDay === "Tomorrow" && (
@@ -284,7 +297,7 @@ const StudentDashboard = () => {
                     </span>
                   </div>
                   <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {cls.teacher}
+                    {cls.faculty}
                   </p>
                   <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                     {cls.room}

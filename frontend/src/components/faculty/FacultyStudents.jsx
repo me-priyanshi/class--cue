@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Users, Search, Filter, Download, Mail, Phone, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext.jsx';
 import studentsData from '../../data/students.json';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import ExcelJS from 'exceljs';
 
 
 const FacultyStudents = () => {
@@ -98,135 +101,120 @@ const FacultyStudents = () => {
   };
 
   const exportStudentsPDF = () => {  
-      const doc = new jsPDF();
-      
-      // Add title
-      // doc.setFontSize(20);
-      // doc.text(`${currentClass.subject} - Class Attendance`, 20, 20);
-      
-      // Add class details
-      doc.setFontSize(12);
-      doc.text(`Teacher: ${currentClass.teacher}`, 20, 30);
-      doc.text(`Time: ${currentClass.time}`, 20, 37);
-      doc.text(`Room: ${currentClass.room}`, 20, 44);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 51);
-      
-      // Add attendance summary
-      const presentCount = currentClass.students.filter(s => s.present).length;
-      const totalCount = currentClass.students.length;
-      const attendancePercentage = ((presentCount / totalCount) * 100).toFixed(1);
-      
-      doc.setFontSize(14);
-      doc.text('Attendance Summary', 20, 65);
-      doc.setFontSize(10);
-      doc.text(`Present: ${presentCount}/${totalCount} (${attendancePercentage}%)`, 20, 75);
-      doc.text(`Absent: ${totalCount - presentCount}`, 20, 82);
-      
-      // Prepare table data with color coding
-      const tableData = currentClass.students.map(student => {
-        const studentInfo = getStudentInfo(student.id);
-        return [
-          student.studentId || student.id,
-          student.name,
-          studentInfo?.email || '',
-          student.present ? 'Present' : 'Absent',
-          student.time || 'N/A'
-        ];
-      });
-      
-      // Add table with custom cell styling
-      doc.autoTable({
-        head: [['Student ID', 'Name', 'Email', 'Total Classes', 'Present', 'Absent', 'Percentage', 'Subjects']],
-        body: tableData,
-        startY: 90,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [59, 130, 246] },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        didParseCell: function(data) {
-          // Color code Status column
-          if (data.column.index === 3) { // Status column
-            if (data.cell.raw === 'Present') {
-              data.cell.styles.fillColor = [16, 185, 129]; // Green
-              data.cell.styles.textColor = [255, 255, 255]; // White text
-              data.cell.styles.fontStyle = 'bold';
-            } else if (data.cell.raw === 'Absent') {
-              data.cell.styles.fillColor = [239, 68, 68]; // Red
-              data.cell.styles.textColor = [255, 255, 255]; // White text
-              data.cell.styles.fontStyle = 'bold';
-            }
-          }
-        }
-      });
-      
-      // Save the PDF
-      doc.save(`${currentClass.subject}_attendance_${new Date().toISOString().split('T')[0]}.pdf`);
-    };
+    const doc = new jsPDF();
+
+    //Add title header
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Student List', 14, 15);
+
+    const tableBody = filteredAndSortedStudents.map((student,index) => [
+      index + 1,
+      student.studentId,
+      student.name,
+      student.email,
+      student.attendance.totalClasses,
+      student.attendance.present,
+      student.attendance.absent,
+      `${student.attendance.percentage}%`,
+      student.subjects.join('; ')
+    ]);
+
+    doc.autoTable({
+      head: [['Sr No','Student ID', 'Name', 'Email', 'Total Classes', 'Present', 'Absent', 'Percentage', 'Subjects']],
+      body: tableBody,
+      startY: 20,
+      styles: {
+        fontSize: 8,
+        lineWidth: 0.1,
+        lineColor: [0, 0, 0],
+        cellPadding: 2
+      },
+      headStyles: {
+        fillColor: [59, 130, 246],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252]
+      }
+    });
+
+    doc.save(`students_report_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
   
     const exportStudentsExcel = async () => {  
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet(`${currentClass.subject}`);
-  
-      // Header
-      const headerRow = worksheet.addRow(['Student ID', 'Name', 'Email', 'Total Classes', 'Present', 'Absent', 'Percentage', 'Subjects']);
+      const worksheet = workbook.addWorksheet('Student List');
+
+      // Header row
+      const headerRow = worksheet.addRow([
+        'Sr No','Student ID', 'Name', 'Email', 'Total Classes', 'Present', 'Absent', 'Percentage', 'Subjects'
+      ]);
       headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
       headerRow.alignment = { horizontal: 'center' };
       headerRow.eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3B82F6' } };
-        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-      });
-  
-      // Data rows with coloring by presence
-      currentClass.students.forEach(student => {
-        const info = getStudentInfo(student.id);
-        const statusText = student.present ? 'Present' : 'Absent';
-        const row = worksheet.addRow([
-          student.studentId || student.id,
-          student.name,
-          info?.email || '',
-          statusText,
-          student.time || 'N/A'
-        ]);
-  
-        const rowColor = student.present ? 'FFECFDF5' : 'FFFEE2E2'; // green tint or red tint
-        row.eachCell(cell => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowColor } };
-          cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-        });
-  
-        // Stronger color on Status cell
-        const statusCell = row.getCell(4);
-        statusCell.fill = {
+        cell.fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: student.present ? 'FF10B981' : 'FFEF4444' }
+          fgColor: { argb: 'FF3B82F6' } // Tailwind blue-500
         };
-        statusCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-        statusCell.alignment = { horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
       });
-  
-      // Auto width
+
+      // Data rows
+      filteredAndSortedStudents.forEach((student,index) => {
+        const row = worksheet.addRow([
+          index + 1,
+          student.studentId,
+          student.name,
+          student.email,
+          student.attendance.totalClasses,
+          student.attendance.present,
+          student.attendance.absent,
+          `${student.attendance.percentage}%`,
+          student.subjects.join('; ')
+        ]);
+
+        row.eachCell(cell => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+      });
+
+      // Auto column width
       worksheet.columns.forEach(column => {
         let maxLength = 10;
         column.eachCell({ includeEmpty: true }, cell => {
-          const cellValue = cell.value ? cell.value.toString() : '';
-          maxLength = Math.max(maxLength, cellValue.length + 2);
+          const val = cell.value ? cell.value.toString() : '';
+          maxLength = Math.max(maxLength, val.length + 2);
         });
         column.width = Math.min(maxLength, 40);
       });
-  
+
+      // Download
       const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${currentClass.subject}_attendance_${new Date().toISOString().split('T')[0]}.xlsx`;
+      a.download = `students_report_${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
     };
-
-
 
   return (
     <div className="space-y-6">
@@ -242,20 +230,22 @@ const FacultyStudents = () => {
               <p className="text-gray-600">View and manage student information and attendance</p>
             </div>
           </div>
-          {/* <button
-            onClick={exportStudentsCSV}
-            className="btn-primary flex items-center"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export CSV
-          </button>
-          <button
-            onClick={exportStudentsPDF}
-            className="btn-primary flex items-center"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export PDF
-          </button> */}
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={exportStudentsExcel}
+              className="btn-primary flex items-center"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Excel
+            </button>
+            <button
+              onClick={exportStudentsPDF}
+              className="btn-primary flex items-center"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export PDF
+            </button>
+          </div>
         </div>
       </div>
 

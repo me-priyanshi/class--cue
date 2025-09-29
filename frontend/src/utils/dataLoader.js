@@ -1,23 +1,24 @@
-// Utility functions to load data from public folder
-const baseUrl = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
-const withBase = (path) => `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+// Import the JSON files directly
+import studentsJson from '../data/students.json';
+import attendanceJson from '../data/attendance.json';
+import timetableJson from '../data/timetable.json';
 
-async function fetchJsonWithFallback(path) {
-  const primary = withBase(path);
-  const legacy = `/classCue/${path.replace(/^\//, '')}`;
-  try {
-    const res = await fetch(primary);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (_) {
-    const res2 = await fetch(legacy);
-    if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
-    return await res2.json();
+// Return the imported JSON directly
+async function getLocalJson(type) {
+  switch(type) {
+    case 'students':
+      return studentsJson;
+    case 'attendance':
+      return attendanceJson;
+    case 'timetable':
+      return timetableJson;
+    default:
+      throw new Error(`Unknown data type: ${type}`);
   }
 }
 export const loadStudentsData = async () => {
   try {
-    return await fetchJsonWithFallback('students.json');
+    return await getLocalJson('students');
   } catch (error) {
     console.error('Error loading students data:', error);
     return [];
@@ -26,7 +27,7 @@ export const loadStudentsData = async () => {
 
 export const loadAttendanceData = async () => {
   try {
-    return await fetchJsonWithFallback('attendance.json');
+    return await getLocalJson('attendance');
   } catch (error) {
     console.error('Error loading attendance data:', error);
     return { today: { classes: [] }, weekly: { summary: {} } };
