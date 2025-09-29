@@ -42,7 +42,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentProfile
         # The fields list must contain all fields for input
-        fields = ['email', 'password', 'full_name', 'enrollment_number', 'department', 'semester']
+        fields = ['email', 'password', 'full_name', 'enrollment_number', 'department', 'semester', 'interests', 'skills', 'goals']
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -84,3 +84,13 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
             department=validated_data['department']
         )
         return profile
+
+class StudentProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentProfile
+        fields = ['full_name', 'interests', 'skills', 'goals']
+
+class TeacherProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherProfile
+        fields = ['full_name']

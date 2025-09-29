@@ -40,7 +40,7 @@ def setup_database():
         print("\nNext steps:")
         print("1. Start the Django server: python manage.py runserver")
         print("2. Start the React frontend: cd ../frontend && npm run dev")
-        print("3. Open http://localhost:5173 in your browser")
+        print("3. Open http://localhost:3000 in your browser")
         
     except Exception as e:
         print(f"Error setting up database: {e}")

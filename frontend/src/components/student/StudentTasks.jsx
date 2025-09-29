@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Target, Clock, BookOpen, CheckCircle, AlertCircle, Plus, Filter } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import tasksData from '../../data/tasks.json';
 
 const StudentTasks = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const userKey = user ? `${user.role || 'user'}:${user.enrollment || user.email || user.studentId || user.id || 'unknown'}` : 'guest:unknown';
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
   // const [completedTasks, setCompletedTasks] = useState(new Set());
@@ -12,26 +15,41 @@ const StudentTasks = () => {
   // const [personalTasks, setPersonalTasks] = useState([...tasksData.personal]);
   // Initialize states from localStorage or fallback to default values
   const [academicTasks, setAcademicTasks] = useState(() => {
-    const saved = localStorage.getItem('academicTasks');
+    const saved = localStorage.getItem(`academicTasks:${userKey}`);
     return saved ? JSON.parse(saved) : tasksData.academic;
   });
 
   const [personalTasks, setPersonalTasks] = useState(() => {
-    const saved = localStorage.getItem('personalTasks');
+    const saved = localStorage.getItem(`personalTasks:${userKey}`);
     return saved ? JSON.parse(saved) : tasksData.personal;
   });
 
   const [completedTasks, setCompletedTasks] = useState(() => {
-    const saved = localStorage.getItem('completedTasks');
+    const saved = localStorage.getItem(`completedTasks:${userKey}`);
     return new Set(saved ? JSON.parse(saved) : []);
   });
   
   // Save to localStorage whenever tasks change
   useEffect(() => {
-    localStorage.setItem('academicTasks', JSON.stringify(academicTasks));
-    localStorage.setItem('personalTasks', JSON.stringify(personalTasks));
-    localStorage.setItem('completedTasks', JSON.stringify([...completedTasks]));
-  }, [academicTasks, personalTasks, completedTasks]);
+    localStorage.setItem(`academicTasks:${userKey}`, JSON.stringify(academicTasks));
+    localStorage.setItem(`personalTasks:${userKey}`, JSON.stringify(personalTasks));
+    localStorage.setItem(`completedTasks:${userKey}`, JSON.stringify([...completedTasks]));
+  }, [academicTasks, personalTasks, completedTasks, userKey]);
+
+  // When user changes (login/logout), reload tasks state for that user
+  useEffect(() => {
+    const load = () => {
+      try {
+        const a = localStorage.getItem(`academicTasks:${userKey}`);
+        const p = localStorage.getItem(`personalTasks:${userKey}`);
+        const c = localStorage.getItem(`completedTasks:${userKey}`);
+        setAcademicTasks(a ? JSON.parse(a) : tasksData.academic);
+        setPersonalTasks(p ? JSON.parse(p) : tasksData.personal);
+        setCompletedTasks(new Set(c ? JSON.parse(c) : []));
+      } catch (_) {}
+    };
+    load();
+  }, [userKey]);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTask, setNewTask] = useState({

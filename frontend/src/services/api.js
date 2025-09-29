@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 class ApiService {
   constructor() {
@@ -99,6 +99,16 @@ class ApiService {
     const response = await fetch(`${this.baseURL}/profile/`, {
       method: 'GET',
       headers: this.getHeaders(),
+    });
+
+    return this.handleResponse(response);
+  }
+
+  async updateUserProfile(profileData) {
+    const response = await fetch(`${this.baseURL}/profile/update/`, {
+      method: 'PATCH',
+      headers: this.getHeaders(),
+      body: JSON.stringify(profileData),
     });
 
     return this.handleResponse(response);

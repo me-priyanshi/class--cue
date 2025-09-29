@@ -49,20 +49,24 @@ class Subject(models.Model):
 
 
 class TeacherProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) #, primary_key=True)
     full_name = models.CharField(max_length=100)
     department = models.CharField(max_length=100)
     subjects = models.ManyToManyField(Subject, blank=True)
+   
     def __str__(self):
         return self.full_name
 
 
 class StudentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    enrollment_number = models.CharField(max_length=20, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) #, primary_key=True)
     full_name = models.CharField(max_length=100)
-    enrollment_number = models.CharField(max_length=20, unique=True)
     department = models.CharField(max_length=100) 
     semester = models.IntegerField()
+    interests = models.JSONField(default=list, blank=True)
+    skills = models.JSONField(default=list, blank=True)
+    goals = models.JSONField(default=list, blank=True)
     def __str__(self):
         return self.full_name
 
@@ -83,7 +87,7 @@ class AttendanceSession(models.Model):
 
 class AttendanceRecord(models.Model):
     session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE, related_name='attendance_records')
-    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, to_field='enrollment_number')
     qr_code_used = models.CharField(max_length=500)
     marked_at = models.DateTimeField(auto_now_add=True)
     is_valid = models.BooleanField(default=True)

@@ -6,6 +6,7 @@ from .views import (
     TeacherRegistrationView, 
     login_view, 
     user_profile, 
+    update_user_profile,
     subjects_list,
     create_attendance_session,
     get_current_qr_code,
@@ -27,6 +28,7 @@ urlpatterns = [
     
     # Profile and Data URLs
     path('profile/', user_profile, name='user-profile'),
+    path('profile/update/', update_user_profile, name='update-user-profile'),
     path('subjects/', subjects_list, name='subjects-list'),
     
     # Dynamic QR Attendance URLs

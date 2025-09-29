@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { ThemeProvider } from './contexts/ThemeContext.jsx';
 import PWARegistration from './components/PWARegistration.jsx';
 import Login from './components/shared/Login.jsx';
-import Signup from './components/shared/Signup.jsx';
+// import Signup from './components/shared/Signup.jsx';
 import Navigation from './components/shared/Navigation.jsx';
 import QRCodeAttendance from './components/shared/QRCodeAttendance.jsx';
 
@@ -12,13 +12,14 @@ import QRCodeAttendance from './components/shared/QRCodeAttendance.jsx';
 import StudentDashboard from './components/student/StudentDashboard.jsx';
 // import StudentTimetable from './components/student/StudentTimetable.jsx';
 import StudentTasks from './components/student/StudentTasks.jsx';
-import StudentSettings from './components/student/StudentSettings.jsx';
 
 // Faculty Components
 import FacultyDashboard from './components/faculty/FacultyDashboard.jsx';
 import FacultyStudents from './components/faculty/FacultyStudents.jsx';
 import FacultyAttendance from './components/faculty/FacultyAttendance.jsx';
-import FacultySettings from './components/faculty/FacultySettings.jsx';
+
+// Shared Components
+import Settings from './components/shared/Settings.jsx';
 
 const AppContent = () => {
   const { user, loading } = useAuth();
@@ -46,7 +47,8 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* Signup disabled - admin provides credentials */}
+        {/* <Route path="/signup" element={<Signup />} /> */}
         <Route
           path="/dashboard"
           element={
@@ -55,7 +57,7 @@ const AppContent = () => {
                 <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
                 <div className="lg:ml-64 transition-all duration-300">
                   <main className="p-4 lg:p-8">
-                    {(user.user_role || user.role) === 'student' ? (
+                    {user.role === 'student' ? (
                       <>
                         {activeTab === 'dashboard' && <StudentDashboard />}
                         {activeTab === 'attendance' && (
@@ -84,14 +86,14 @@ const AppContent = () => {
                         )}
                         {/* {activeTab === 'timetable' && <StudentTimetable />} */}
                         {activeTab === 'tasks' && <StudentTasks />}
-                        {activeTab === 'settings' && <StudentSettings />}
+                        {activeTab === 'settings' && <Settings />}
                       </>
                     ) : (
                       <>
                         {activeTab === 'dashboard' && <FacultyDashboard />}
                         {activeTab === 'attendance' && <FacultyAttendance />}
                         {activeTab === 'students' && <FacultyStudents />}
-                        {activeTab === 'settings' && <FacultySettings />}
+                        {activeTab === 'settings' && <Settings />}
                       </>
                     )}
                   </main>

@@ -12,7 +12,7 @@ import qrcode
 import io
 import base64
 from .models import User, StudentProfile, TeacherProfile, Subject, AttendanceSession, AttendanceRecord
-from .serializers import UserSerializer, StudentProfileSerializer, TeacherProfileSerializer, SubjectSerializer, AttendanceSessionSerializer, AttendanceRecordSerializer
+from .serializers import UserSerializer, StudentProfileSerializer, TeacherProfileSerializer, SubjectSerializer, AttendanceSessionSerializer, AttendanceRecordSerializer, StudentProfileUpdateSerializer
 
 class StudentRegistrationView(generics.CreateAPIView):
     queryset = StudentProfile.objects.all()
@@ -49,7 +49,7 @@ def login_view(request):
                 student_data = StudentProfileSerializer(student_profile).data
                 student_data['user_id'] = user.id
                 student_data['user_email'] = user.email
-                student_data['user_role'] = user.role
+                student_data['role'] = user.role  # Changed from 'user_role' to 'role'
                 return Response({
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
@@ -69,7 +69,7 @@ def login_view(request):
                 teacher_data = TeacherProfileSerializer(teacher_profile).data
                 teacher_data['user_id'] = user.id
                 teacher_data['user_email'] = user.email
-                teacher_data['user_role'] = user.role
+                teacher_data['role'] = user.role  # Changed from 'user_role' to 'role'
                 return Response({
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
@@ -83,7 +83,7 @@ def login_view(request):
                 student_data = StudentProfileSerializer(student_profile).data
                 student_data['user_id'] = user.id
                 student_data['user_email'] = user.email
-                student_data['user_role'] = user.role
+                student_data['role'] = user.role  # Changed from 'user_role' to 'role'
                 return Response({
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
@@ -115,7 +115,7 @@ def user_profile(request):
         profile_data = serializer.data
         profile_data['user_id'] = user.id
         profile_data['user_email'] = user.email
-        profile_data['user_role'] = user.role
+        profile_data['role'] = user.role
         return Response(profile_data)
     elif user.role == 'teacher':
         profile = TeacherProfile.objects.get(user=user)
@@ -124,11 +124,54 @@ def user_profile(request):
         profile_data = serializer.data
         profile_data['user_id'] = user.id
         profile_data['user_email'] = user.email
-        profile_data['user_role'] = user.role
+        profile_data['role'] = user.role
         return Response(profile_data)
     else:
         serializer = UserSerializer(user)
         return Response(serializer.data)
+
+@api_view(['PUT', 'PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def update_user_profile(request):
+    """Update user profile information"""
+    user = request.user
+    
+    if user.role == 'student':
+        try:
+            profile = StudentProfile.objects.get(user=user)
+            serializer = StudentProfileUpdateSerializer(profile, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                # Return updated profile data
+                profile_data = StudentProfileSerializer(profile).data
+                profile_data['user_id'] = user.id
+                profile_data['user_email'] = user.email
+                profile_data['role'] = user.role
+                return Response(profile_data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except StudentProfile.DoesNotExist:
+            return Response({'error': 'Student profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    elif user.role == 'teacher':
+        try:
+            profile = TeacherProfile.objects.get(user=user)
+            serializer = TeacherProfileUpdateSerializer(profile, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                # Return updated profile data
+                profile_data = TeacherProfileSerializer(profile).data
+                profile_data['user_id'] = user.id
+                profile_data['user_email'] = user.email
+                profile_data['role'] = user.role
+                return Response(profile_data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except TeacherProfile.DoesNotExist:
+            return Response({'error': 'Teacher profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    else:
+        return Response({'error': 'Invalid user role'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])

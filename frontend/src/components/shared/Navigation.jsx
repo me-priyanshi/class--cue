@@ -16,7 +16,6 @@ import ClassCueLogo from '../../images/ClassCueLogo.png';
 
 const UserAvatar = ({ user, theme }) => {
   const getInitials = (name) => {
-    if (!name) return 'U';
     return name
       .split(' ')
       .map(word => word[0])
@@ -24,20 +23,17 @@ const UserAvatar = ({ user, theme }) => {
       .toUpperCase();
   };
 
-  const displayName = user?.full_name || user?.name || 'User';
-  const userRole = user?.user_role || user?.role || 'user';
-
   return (
     <div className="flex items-center">
       <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-medium">
-        {getInitials(displayName)}
+        {getInitials(user?.full_name || 'User')}
       </div>
       <div className="ml-3">
         <p className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-          {displayName}
+          {user?.full_name}
         </p>
         <p className={`text-xs capitalize ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-          {userRole}
+          {user?.role}
         </p>
       </div>
     </div>
@@ -64,7 +60,7 @@ const Navigation = ({ activeTab, setActiveTab }) => {
   { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
-  const navItems = (user?.user_role || user?.role) === 'student' ? studentNavItems : facultyNavItems;
+  const navItems = user?.role === 'student' ? studentNavItems : facultyNavItems;
 
   const handleLogout = () => {
     logout();
@@ -77,6 +73,16 @@ const Navigation = ({ activeTab, setActiveTab }) => {
     return (
       <button
         onClick={() => {
+          const leavingSettings = activeTab === 'settings' && item.id !== 'settings';
+          if (leavingSettings) {
+            let hasUnsaved = false;
+            try { hasUnsaved = localStorage.getItem('settingsHasUnsaved') === '1'; } catch (_) {}
+            if (hasUnsaved) {
+              const proceed = window.confirm('You have unsaved changes in Settings. Discard and leave?');
+              if (!proceed) return;
+              window.dispatchEvent(new Event('settings:discard'));
+            }
+          }
           setActiveTab(item.id);
           if (isMobile) setIsMobileMenuOpen(false);
         }}

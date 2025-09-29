@@ -104,7 +104,8 @@ try:
         host=os.getenv('DB_HOST', 'localhost'),
         port=os.getenv('DB_PORT', '5432'),
         user=os.getenv('DB_USER', 'postgres'),
-        password=os.getenv('DB_PASSWORD', 'Aryan1824'),
+        # password=os.getenv('DB_PASSWORD', 'Aryan1824'),
+        password=os.getenv('DB_PASSWORD', 'PriPostgres'),
         database=os.getenv('DB_NAME', 'classcue_db')
     )
     conn.close()
@@ -113,7 +114,7 @@ try:
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('DB_NAME', 'classcue_db'),
             'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'Aryan1824'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'PriPostgres'),
             'HOST': os.getenv('DB_HOST', 'localhost'),
             'PORT': os.getenv('DB_PORT', '5432'),
         }
@@ -179,6 +180,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://192.168.1.8:3000",
+    "http://192.168.1.8:8000",
+    "http://192.168.1.8:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

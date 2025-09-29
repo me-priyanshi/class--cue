@@ -14,6 +14,8 @@ const Login = ({ onSignupClick }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInstallButton, setShowInstallButton] = useState(false);
+  const [error, setError] = useState('');
+  const [showToast, setShowToast] = useState(false);
   
   // Check if device is mobile on component mount
   const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -139,26 +141,32 @@ const Login = ({ onSignupClick }) => {
     }
   };
 
+  const [remember, setRemember] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+    setShowToast(false);
 
     try {
       // Use enrollment number for students, email for faculty
       const identifier = formData.role === 'student' ? formData.enrollment : formData.email;
       
-      const result = await login(identifier, formData.password, formData.role);
+      const result = await login(identifier, formData.password, formData.role, remember);
       
       if (result.success) {
         // Navigate to home after successful login
-        navigate('/');
+        navigate('/classCue/dashboard');
       } else {
         // Show error message
         alert(result.error || 'Login failed. Please check your credentials.');
       }
     } catch (error) {
       console.error('Login failed:', error);
-      alert('Login failed. Please try again.');
+      // alert('Login failed. Please try again.');
+      setError(error?.message || 'Failed to sign in. Please enter correct credentials.');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +190,7 @@ const Login = ({ onSignupClick }) => {
             minWidth: '80px'
           }}
         >
-          <span>Download</span>
+          <span>Download &nbsp; </span>
         </button>
       )}
       
@@ -221,9 +229,9 @@ const Login = ({ onSignupClick }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleRoleChange('faculty')}
+                  onClick={() => handleRoleChange('teacher')}
                   className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                    formData.role === 'faculty'
+                    formData.role === 'teacher'
                       ? 'border-primary-500 bg-primary-50 text-primary-700'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                   }`}
@@ -250,12 +258,9 @@ const Login = ({ onSignupClick }) => {
                   onInvalid={e => e.target.setCustomValidity('Enrollment number must be exactly 12 digits.')}
                   onInput={e => e.target.setCustomValidity('')}
                   className="input-field"
-                  placeholder="Enter your 12-digit enrollment number"
+                  placeholder="Enter your enrollment number"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Example: 240173107002
-                </p>
               </div>
             ) : (
               <div>
@@ -269,7 +274,7 @@ const Login = ({ onSignupClick }) => {
                   value={formData.email}
                   onChange={handleInputChange}
                   className="input-field"
-                  placeholder="Enter your email address"
+                  placeholder="Enter your email"
                   required
                 />
               </div>
@@ -307,6 +312,19 @@ const Login = ({ onSignupClick }) => {
               </div>
             </div>
 
+            {/* Remember Me */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  className="mr-2 h-4 w-4"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                />
+                Remember me
+              </label>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -322,26 +340,25 @@ const Login = ({ onSignupClick }) => {
                 'Sign In'
               )}
             </button>
+
+            
           </form>
 
-          <div className="mt-6 text-center">
+          {/* <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 mb-2">
-              Demo credentials:
+              Demo credentials: Use any password
             </p>
-            <div className="text-xs text-gray-500 mb-2">
-              <p><strong>Students:</strong> Enrollment: 240173107002, Password: password123</p>
-              <p><strong>Faculty:</strong> Email: teacher1@example.com, Password: password123</p>
-            </div>
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-primary-600 font-medium underline">
-                Sign Up
-              </Link>
-            </p>
-          </div>
+          </div> */}
 
         </div>
       </div>
+    {showToast && (
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50" role="status" aria-live="polite">
+        <div className="px-4 py-3 bg-red-600 text-white rounded shadow-lg min-w-[280px] text-sm">
+          {error || 'Failed to sign in. Please enter correct credentials.'}
+        </div>
+      </div>
+    )}
     </div>
   );
 };

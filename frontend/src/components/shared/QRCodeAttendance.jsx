@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { QrCode, CheckCircle, AlertCircle, Camera } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext.jsx';
-import apiService from '../../services/api.js';
 
 const QRCodeAttendance = ({ onAttendanceMarked, classId }) => {
   const [scanning, setScanning] = useState(false);
@@ -28,36 +27,13 @@ const QRCodeAttendance = ({ onAttendanceMarked, classId }) => {
           await html5QrCode.start(
             { facingMode: "environment" },
             config,
-            async (decodedText) => {
+            (decodedText) => {
               html5QrCode.stop();
               setScanResult(decodedText);
               setScanning(false);
-              
-              // Mark attendance using the scanned QR code
-              try {
-                await apiService.markAttendance(decodedText);
-                setError(null);
-                setTimeout(() => {
-                  onAttendanceMarked && onAttendanceMarked();
-                }, 1500);
-              } catch (error) {
-                console.error('Failed to mark attendance:', error);
-                let errorMessage = 'Failed to mark attendance';
-                
-                if (error.message.includes('expired')) {
-                  errorMessage = 'QR Code has expired. Please ask your instructor for a new QR code.';
-                } else if (error.message.includes('already marked')) {
-                  errorMessage = 'You have already marked attendance for this session.';
-                } else if (error.message.includes('Invalid')) {
-                  errorMessage = 'Invalid QR code. Please scan the correct QR code from your instructor.';
-                } else if (error.message.includes('not found')) {
-                  errorMessage = 'Student profile not found. Please contact support.';
-                }
-                
-                setError(errorMessage);
-                setScanResult(null);
-                setScanning(false);
-              }
+              setTimeout(() => {
+                onAttendanceMarked && onAttendanceMarked();
+              }, 1500);
             },
             (errorMessage) => {
               // Don't set error for normal scanning attempts
@@ -106,7 +82,7 @@ const QRCodeAttendance = ({ onAttendanceMarked, classId }) => {
           QR Code Attendance
         </h3>
         <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-          Scan the dynamic QR code displayed by your instructor to mark attendance
+          Scan the QR code displayed by your instructor to mark attendance
         </p>
       </div>
 
@@ -153,11 +129,6 @@ const QRCodeAttendance = ({ onAttendanceMarked, classId }) => {
                 <p className={`font-medium ${theme === 'dark' ? 'text-red-100' : 'text-red-800'}`}>
                   {error}
                 </p>
-                {error.includes('expired') && (
-                  <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-red-200' : 'text-red-700'}`}>
-                    QR codes change every 10 seconds for security. Please wait for a new QR code.
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -166,12 +137,10 @@ const QRCodeAttendance = ({ onAttendanceMarked, classId }) => {
         <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-4`}>
           <h4 className="font-medium mb-2">Instructions:</h4>
           <ul className="list-disc list-inside space-y-1">
-            <li>QR code changes every 10 seconds for security</li>
             <li>Make sure QR code is clearly visible</li>
             <li>Hold your device steady</li>
             <li>Position QR code within the scanner frame</li>
             <li>Ensure good lighting conditions</li>
-            <li>You can only mark attendance once per session</li>
           </ul>
         </div>
       </div>

@@ -18,14 +18,18 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check if user is logged in and validate token
     const checkAuthStatus = async () => {
-      const token = localStorage.getItem('access_token');
+
+      const persistentToken = localStorage.getItem('access_token');
+      const sessionToken = localStorage.getItem('access_token');
+      const token = persistentToken || sessionToken;
+
       if (token) {
         try {
           const userProfile = await apiService.getUserProfile();
           setUser(userProfile);
         } catch (error) {
           console.error('Auth validation failed:', error);
-          // Clear invalid tokens
+          clearTokens();
           apiService.logout();
         }
       }
@@ -35,14 +39,47 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async (identifier, password, role = 'student') => {
+  const clearTokens = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('user');
+    setUser(null);
+  };
+
+  const login = async (identifier, password, role = 'student', remember = false) => {
     try {
       const response = await apiService.login(identifier, password, role);
-      setUser(response.user);
-      return { success: true, user: response.user };
+
+      if(!response || !response.access){
+        throw new Error('Invalid response from server');
+      }
+
+      // Store tokens based on remember preference
+      const storage = remember ? localStorage : sessionStorage;
+      
+      // Store tokens and user data
+      storage.setItem('access_token', response.access);
+      storage.setItem('refresh_token', response.refresh);
+
+      if(response.user) {
+        storage.setItem('user', JSON.stringify(response.user));
+        setUser(response.user);
+      }
+
+      return { 
+        success: true, 
+        user: response.user 
+      };
     } catch (error) {
       console.error('Login failed:', error);
-      return { success: false, error: error.message };
+      clearTokens();
+      return { 
+        success: false, 
+        error: error.response?.data?.message || error.message || 'Login failed' 
+      };
     }
   };
 
@@ -72,6 +109,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('user');
       setUser(null);
     }
   };
@@ -92,6 +135,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserProfile = async (profileData) => {
+    try {
+      const updatedProfile = await apiService.updateUserProfile(profileData);
+      setUser(updatedProfile);
+      return updatedProfile;
+    } catch (error) {
+      console.error('Failed to update user profile:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     login,
@@ -100,7 +154,8 @@ export const AuthProvider = ({ children }) => {
     updateUser,
     registerStudent,
     registerTeacher,
-    refreshUserProfile
+    refreshUserProfile,
+    updateUserProfile
   };
 
   return (

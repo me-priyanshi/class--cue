@@ -2,179 +2,218 @@
   "monday": [
     {
       "id": 1,
-      "subject": "Mathematics",
-      "teacher": "Dr. Smith",
-      "time": "09:00 - 10:00",
-      "room": "Room 101",
-      "type": "lecture"
+      "time": "10:30 AM - 12:30 PM",
+      "subject": "SE",
+      "sub_code": "3150711",
+      "faculty": "AND",
+      "type": "Lab",
+      "room": "D-205"
     },
     {
       "id": 2,
-      "subject": "Physics",
-      "teacher": "Prof. Johnson",
-      "time": "10:15 - 11:15",
-      "room": "Lab 201",
-      "type": "practical"
+      "time": "1:00 PM - 2:00 PM",
+      "subject": "ADA",
+      "sub_code": "3150703",
+      "faculty": "JMS",
+      "type": "Lecture",
+      "room": "D-104"
     },
     {
       "id": 3,
-      "subject": "English",
-      "teacher": "Ms. Davis",
-      "time": "11:30 - 12:30",
-      "room": "Room 102",
-      "type": "lecture"
+      "time": "2:00 PM - 3:00 PM",
+      "subject": "CN",
+      "sub_code": "3150710",
+      "faculty": "JMR",
+      "type": "Lecture",
+      "room": "D-104"
     },
     {
       "id": 4,
-      "subject": "Chemistry",
-      "teacher": "Dr. Wilson",
-      "time": "14:00 - 15:00",
-      "room": "Lab 202",
-      "type": "practical"
+      "time": "3:15 PM - 4:15 PM",
+      "subject": "CN",
+      "sub_code": "3150710",
+      "faculty": "NRD",
+      "type": "Lecture",
+      "room": "D-104"
     },
     {
       "id": 5,
-      "subject": "Computer Science",
-      "teacher": "Mr. Brown",
-      "time": "15:15 - 16:15",
-      "room": "Room 103",
-      "type": "lecture"
+      "time": "4:15 PM - 5:15 PM",
+      "subject": "PE",
+      "sub_code": "3150709",
+      "faculty": "NA",
+      "type": "Lecture",
+      "room": "D-104"
     }
   ],
   "tuesday": [
     {
       "id": 6,
-      "subject": "Biology",
-      "teacher": "Dr. Miller",
-      "time": "09:00 - 10:00",
-      "room": "Lab 203",
-      "type": "practical"
+      "time": "10:30 AM - 12:30 PM",
+      "subject": "ADA",
+      "sub_code": "3150703",
+      "faculty": "JMS",
+      "type": "Lab",
+      "room": "D-204"
     },
     {
       "id": 7,
-      "subject": "History",
-      "teacher": "Prof. Taylor",
-      "time": "10:15 - 11:15",
-      "room": "Room 104",
-      "type": "lecture"
+      "time": "1:00 PM - 2:00 PM",
+      "subject": "PDS",
+      "sub_code": "3150713",
+      "faculty": "BNP",
+      "type": "Lecture",
+      "room": "D-104"
     },
     {
       "id": 8,
-      "subject": "Mathematics",
-      "teacher": "Dr. Smith",
-      "time": "11:30 - 12:30",
-      "room": "Room 101",
-      "type": "tutorial"
+      "time": "2:00 PM - 3:00 PM",
+      "subject": "ADA",
+      "sub_code": "3150703",
+      "faculty": "JMS",
+      "type": "Lecture",
+      "room": "D-104"
     },
     {
       "id": 9,
-      "subject": "Physical Education",
-      "teacher": "Coach Anderson",
-      "time": "14:00 - 15:00",
-      "room": "Gymnasium",
-      "type": "practical"
+      "time": "3:15 PM - 4:15 PM",
+      "subject": "PDS",
+      "sub_code": "3150713",
+      "faculty": "NA",
+      "type": "Lecture",
+      "room": "D-104"
+    },
+    {
+      "id": 10,
+      "time": "4:15 PM - 5:15 PM",
+      "subject": "CN",
+      "sub_code": "3150710",
+      "faculty": "NA",
+      "type": "Lecture",
+      "room": "D-104"
     }
   ],
   "wednesday": [
     {
-      "id": 10,
-      "subject": "Physics",
-      "teacher": "Prof. Johnson",
-      "time": "09:00 - 10:00",
-      "room": "Room 101",
-      "type": "lecture"
-    },
-    {
       "id": 11,
-      "subject": "Chemistry",
-      "teacher": "Dr. Wilson",
-      "time": "10:15 - 11:15",
-      "room": "Room 102",
-      "type": "lecture"
+      "time": "10:30 AM - 12:30 PM",
+      "subject": "PDS",
+      "sub_code": "3150713",
+      "faculty": "BNP",
+      "type": "Lab",
+      "room": "D-205"
     },
     {
       "id": 12,
-      "subject": "English",
-      "teacher": "Ms. Davis",
-      "time": "11:30 - 12:30",
-      "room": "Room 103",
-      "type": "tutorial"
+      "time": "1:00 PM - 2:00 PM",
+      "subject": "SE",
+      "sub_code": "3150711",
+      "faculty": "AND",
+      "type": "Lecture",
+      "room": "D-104"
     },
     {
       "id": 13,
-      "subject": "Computer Science",
-      "teacher": "Mr. Brown",
-      "time": "14:00 - 15:00",
-      "room": "Lab 201",
-      "type": "practical"
+      "time": "2:00 PM - 3:00 PM",
+      "subject": "CN",
+      "sub_code": "3150710",
+      "faculty": "JMR",
+      "type": "Lecture",
+      "room": "D-104"
+    },
+    {
+      "id": 14,
+      "time": "3:15 PM - 4:15 PM",
+      "subject": "CN",
+      "sub_code": "3150710",
+      "faculty": "VHB",
+      "type": "Lecture",
+      "room": "D-104"
+    },
+    {
+      "id": 15,
+      "time": "4:15 PM - 5:15 PM",
+      "subject": "SE",
+      "sub_code": "3150711",
+      "faculty": "AND",
+      "type": "Lecture",
+      "room": "D-104"
     }
   ],
   "thursday": [
     {
-      "id": 14,
-      "subject": "Mathematics",
-      "teacher": "Dr. Smith",
-      "time": "09:00 - 10:00",
-      "room": "Room 101",
-      "type": "lecture"
-    },
-    {
-      "id": 15,
-      "subject": "Biology",
-      "teacher": "Dr. Miller",
-      "time": "10:15 - 11:15",
-      "room": "Room 102",
-      "type": "lecture"
-    },
-    {
       "id": 16,
-      "subject": "History",
-      "teacher": "Prof. Taylor",
-      "time": "11:30 - 12:30",
-      "room": "Room 103",
-      "type": "tutorial"
+      "time": "10:30 AM - 12:30 PM",
+      "subject": "CN",
+      "sub_code": "3150710",
+      "faculty": "JMR",
+      "type": "Lab",
+      "room": "D-205"
     },
     {
       "id": 17,
-      "subject": "Physics",
-      "teacher": "Prof. Johnson",
-      "time": "14:00 - 15:00",
-      "room": "Lab 202",
-      "type": "practical"
+      "time": "1:00 PM - 2:00 PM",
+      "subject": "ADA",
+      "sub_code": "3150703",
+      "faculty": "RKS",
+      "type": "Lecture",
+      "room": "D-104"
+    },
+    {
+      "id": 18,
+      "time": "2:00 PM - 3:00 PM",
+      "subject": "SE",
+      "sub_code": "3150711",
+      "faculty": "AND",
+      "type": "Lecture",
+      "room": "D-104"
+    },
+    {
+      "id": 19,
+      "time": "3:15 PM - 4:15 PM",
+      "subject": "IPDC",
+      "sub_code": "3150005",
+      "faculty": "NA",
+      "type": "Lecture",
+      "room": "D-104"
+    },
+    {
+      "id": 20,
+      "time": "4:15 PM - 5:15 PM",
+      "subject": "IPDC",
+      "sub_code": "3150005",
+      "faculty": "NA",
+      "type": "Lecture",
+      "room": "D-104"
     }
   ],
   "friday": [
     {
-      "id": 18,
-      "subject": "Chemistry",
-      "teacher": "Dr. Wilson",
-      "time": "09:00 - 10:00",
-      "room": "Room 101",
-      "type": "lecture"
-    },
-    {
-      "id": 19,
-      "subject": "Computer Science",
-      "teacher": "Mr. Brown",
-      "time": "10:15 - 11:15",
-      "room": "Room 102",
-      "type": "lecture"
-    },
-    {
-      "id": 20,
-      "subject": "English",
-      "teacher": "Ms. Davis",
-      "time": "11:30 - 12:30",
-      "room": "Room 103",
-      "type": "lecture"
-    },
-    {
       "id": 21,
-      "subject": "Mathematics",
-      "teacher": "Dr. Smith",
-      "time": "14:00 - 15:00",
-      "room": "Room 101",
-      "type": "tutorial"
+      "time": "10:30 AM - 12:30 PM",
+      "subject": "DE-II-B",
+      "sub_code": "3150001",
+      "faculty":"NA",
+      "type": "Lab",
+      "room": "D-205"
+    },
+    {
+      "id": 22,
+      "time": "1:00 PM - 2:00 PM",
+      "subject": "PE",
+      "sub_code": "3150709",
+      "faculty": "NA",
+      "type": "Lecture",
+      "room": "D-104"
+    },
+    {
+      "id": 23,
+      "time": "2:00 PM - 3:00 PM",
+      "subject": "ADA",
+      "sub_code": "3150703",
+      "faculty": "NA",
+      "type": "Lecture",
+      "room": "D-104"
     }
   ]
 }
